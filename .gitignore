@@ -1,0 +1,4 @@
+.idea
+
+# Sensitive data
+src/database-settings.yml
