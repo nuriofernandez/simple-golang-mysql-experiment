@@ -6,12 +6,13 @@ import (
 	. "github.com/xXNurioXx/simple-golang-mysql-experiment/structs"
 )
 
-const query = "SELECT `server_id`, `server_domain`, `players`, `max_players` FROM `server_list` ORDER BY `last_ping` ASC LIMIT 10"
+const query = "SELECT `server_id`, `server_domain`, `players`, `max_players`, `server_score`, `server_icon_id` FROM `server_list` ORDER BY `last_ping` ASC LIMIT 10"
 
 func queryForResults() *sql.Rows {
+	// Obtain the MySQL connection
 	connection := mysql.GetConnection()
 
-	// Execute the query
+	// Execute the query and return the result rows
 	results, err := connection.Query(query)
 	if err != nil {
 		panic(err.Error()) // proper error handling instead of panic in your app
@@ -19,21 +20,26 @@ func queryForResults() *sql.Rows {
 	return results
 }
 
+func parse(results *sql.Rows) MinecraftServer {
+	var server MinecraftServer
+
+	// Scan the result into the MinecraftServer composite struct
+	err := results.Scan(&server.Id, &server.Domain, &server.OnlinePlayers, &server.MaxPlayers, &server.Score, &server.Image)
+	if err != nil {
+		panic(err.Error()) // proper error handling instead of panic
+	}
+
+	return server
+}
+
 func GetServers() []MinecraftServer {
 	// Obtain row results from sql database
 	results := queryForResults()
 
+	// Collect all minecraft servers structs and return them all
 	var servers []MinecraftServer
 	for results.Next() {
-		var server MinecraftServer
-		// for each row, scan the result into the MinecraftServer composite object
-		err := results.Scan(&server.Id, &server.Domain, &server.OnlinePlayers, &server.MaxPlayers)
-		if err != nil {
-			panic(err.Error()) // proper error handling instead of panic
-		}
-
-		// Redefine servers array with the new server
-		servers = append(servers, server)
+		servers = append(servers, parse(results))
 	}
 	return servers
 }
