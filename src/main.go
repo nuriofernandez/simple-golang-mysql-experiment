@@ -8,6 +8,6 @@ import (
 func main() {
 	servers := fetchers.GetServers()
 	for _, server := range servers {
-		fmt.Println(fmt.Sprintf("Server '%s' has %d online players", server.Domain, server.OnlinePlayers))
+		fmt.Printf("Server '%s' has %d online players\n", server.Domain, server.OnlinePlayers)
 	}
 }
